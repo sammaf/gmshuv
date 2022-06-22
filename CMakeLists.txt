@@ -14,12 +14,14 @@ else()
   set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "Choose build type")
 endif()
 
-project(gmsh CXX C)
+project(gmshuv CXX C)
 
 # require C++11 and request C99
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_STANDARD 99)
+
+set(CPACK_PACKAGE_CONTACT "SONIIR")
 
 # this variable controls the default value of the options which are normally set
 # to ON (useful if you want to configure a minimal version of Gmsh: e.g. "cmake
@@ -38,7 +40,7 @@ opt(BAMG "Enable Bamg 2D anisotropic mesh generator" ${DEFAULT})
 opt(BLAS_LAPACK "Enable BLAS/Lapack for linear algebra (if Eigen if disabled)" OFF)
 opt(BLOSSOM "Enable Blossom algorithm (needed for full quad meshing)" ${DEFAULT})
 opt(BUILD_LIB "Enable 'lib' target for building static Gmsh library" OFF)
-opt(BUILD_SHARED "Enable 'shared' target for building shared Gmsh library" OFF)
+opt(BUILD_SHARED "Enable 'shared' target for building shared Gmsh library" ON)
 opt(BUILD_DYNAMIC "Enable dynamic Gmsh executable (linked with shared library)" OFF)
 opt(BUILD_ANDROID "Enable Android NDK library target (experimental)" OFF)
 opt(BUILD_IOS "Enable iOS library target (experimental)" OFF)
@@ -1669,7 +1671,7 @@ endif()
 # shared library target
 if(ENABLE_BUILD_SHARED OR ENABLE_BUILD_DYNAMIC)
   add_library(shared SHARED ${GMSH_SRC})
-  set_target_properties(shared PROPERTIES OUTPUT_NAME gmsh
+  set_target_properties(shared PROPERTIES OUTPUT_NAME gmshuv
      VERSION ${GMSH_MAJOR_VERSION}.${GMSH_MINOR_VERSION}.${GMSH_PATCH_VERSION}
      SOVERSION ${GMSH_MAJOR_VERSION}.${GMSH_MINOR_VERSION})
   if(WIN32)
@@ -1695,10 +1697,10 @@ endif()
 # binary targets
 if(HAVE_FLTK)
   if(ENABLE_BUILD_DYNAMIC)
-    add_executable(gmsh WIN32 src/common/Main.cpp)
-    target_link_libraries(gmsh shared)
+    add_executable(gmshuv WIN32 src/common/Main.cpp)
+    target_link_libraries(gmshuv shared)
   else()
-    add_executable(gmsh WIN32 src/common/Main.cpp ${GMSH_SRC})
+    add_executable(gmshuv WIN32 src/common/Main.cpp ${GMSH_SRC})
   endif()
   # we could add this to create a minimal app bundle even without install
   # if(APPLE AND NOT ENABLE_OS_SPECIFIC_INSTALL)
@@ -1707,13 +1709,13 @@ if(HAVE_FLTK)
   # endif()
 else()
   if(ENABLE_BUILD_DYNAMIC)
-    add_executable(gmsh src/common/Main.cpp)
-    target_link_libraries(gmsh shared)
+    add_executable(gmshuv src/common/Main.cpp)
+    target_link_libraries(gmshuv shared)
   else()
-    add_executable(gmsh src/common/Main.cpp ${GMSH_SRC})
+    add_executable(gmshuv src/common/Main.cpp ${GMSH_SRC})
   endif()
 endif()
-target_link_libraries(gmsh ${LINK_LIBRARIES})
+target_link_libraries(gmshuv ${LINK_LIBRARIES})
 
 # Windows specific linker options
 if(WIN32 AND NOT MSVC)
@@ -1728,7 +1730,7 @@ if(WIN32 AND NOT MSVC)
   else()
     set(APPFLAGS "${FLAGS} -municode -mconsole")
   endif()
-  set_target_properties(gmsh PROPERTIES LINK_FLAGS "${APPFLAGS}")
+  set_target_properties(gmshuv PROPERTIES LINK_FLAGS "${APPFLAGS}")
   if(ENABLE_BUILD_DYNAMIC OR ENABLE_BUILD_SHARED)
     set_target_properties(shared PROPERTIES LINK_FLAGS "${FLAGS}")
   endif()
@@ -1736,7 +1738,7 @@ if(WIN32 AND NOT MSVC)
   set(CMAKE_EXE_LINK_DYNAMIC_C_FLAGS)
   set(CMAKE_EXE_LINK_DYNAMIC_CXX_FLAGS)
 elseif(MSVC)
-  set_target_properties(gmsh PROPERTIES LINK_FLAGS "/STACK:16777216 /SAFESEH:NO")
+  set_target_properties(gmshuv PROPERTIES LINK_FLAGS "/STACK:16777216 /SAFESEH:NO")
 endif()
 
 # android target
@@ -1877,12 +1879,12 @@ else()
   set(GMSH_LIB ${CMAKE_INSTALL_LIBDIR})
   set(GMSH_DOC ${CMAKE_INSTALL_DOCDIR})
   set(GMSH_MAN ${CMAKE_INSTALL_MANDIR}/man1)
-  set(GMSH_INC ${CMAKE_INSTALL_INCLUDEDIR})
+  set(GMSH_INC ${CMAKE_INSTALL_INCLUDEDIR}/gmshuv)
 endif()
 
 # mark targets as optional so we can install them separately if needed
 # (e.g. "make lib" or "make shared" followed by "make install/fast")
-install(TARGETS gmsh DESTINATION ${GMSH_BIN} OPTIONAL)
+install(TARGETS gmshuv DESTINATION ${GMSH_BIN} OPTIONAL)
 if(ENABLE_BUILD_LIB)
   install(TARGETS lib DESTINATION ${GMSH_LIB} OPTIONAL)
 endif()
@@ -1891,12 +1893,12 @@ if(ENABLE_BUILD_SHARED OR ENABLE_BUILD_DYNAMIC)
 endif()
 
 if(ENABLE_ONELAB AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/onelab)
-  install(FILES ${ONELAB_PY} DESTINATION ${GMSH_BIN})
+  #install(FILES ${ONELAB_PY} DESTINATION ${GMSH_BIN})
 endif()
 if(ENABLE_BUILD_LIB OR ENABLE_BUILD_SHARED OR ENABLE_BUILD_DYNAMIC)
   install(FILES ${GMSH_API} DESTINATION ${GMSH_INC})
-  install(FILES ${GMSH_PY} DESTINATION ${GMSH_LIB})
-  install(FILES ${GMSH_JL} DESTINATION ${GMSH_LIB})
+  #install(FILES ${GMSH_PY} DESTINATION ${GMSH_LIB})
+  #install(FILES ${GMSH_JL} DESTINATION ${GMSH_LIB})
   if(ENABLE_PRIVATE_API)
     install(FILES ${GMSH_PRIVATE_API} DESTINATION ${GMSH_INC}/gmsh)
     if(HAVE_CONTRIB_EIGEN) # the private API depends on Eigen
@@ -1923,7 +1925,7 @@ foreach(DIR ${EXAMPLES_DIRS})
   install(FILES ${EXAMPLES_FILES} DESTINATION ${GMSH_DOC}/examples/${EXAMPLES_DIR_NAME})
 endforeach()
 if(UNIX AND NOT CYGWIN)
-  install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/doc/gmsh.1 DESTINATION ${GMSH_MAN})
+  #install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/doc/gmsh.1 DESTINATION ${GMSH_MAN})
 endif()
 
 add_custom_target(get_headers
@@ -2147,7 +2149,7 @@ if(ENABLE_TESTS AND NOT DISABLE_GMSH_TESTS)
     # use relative path for Cygwin/MinGW (the pure win exe built with the MinGW
     # compilers does not understand a full Cygwin-style path)
     FILE(RELATIVE_PATH TEST ${CMAKE_CURRENT_BINARY_DIR} ${TESTFILE})
-    add_test(${TEST} ./gmsh ${TEST} -3 -nopopup -o ./tmp.msh)
+    add_test(${TEST} ./gmshuv ${TEST} -3 -nopopup -o ./tmp.msh)
   endforeach()
   # test c++ api tutorials with dynamic builds
   if(ENABLE_BUILD_DYNAMIC)
@@ -2205,3 +2207,6 @@ mark_as_advanced(ANN_INC ANN_LIB CAIRO_LIB CAIRO_INC CGNS_INC GMM_INC
                  PETSC_LIBS SLEPC_INC SLEPC_INC2 SLEPC_LIB
                  BISON FLEX MAKEINFO TEXI2PDF FLTK_CONFIG_SCRIPT
                  GMSH_EXTERNAL_INCLUDE_DIRS GMSH_EXTERNAL_LIBRARIES)
+
+                 
+                 
