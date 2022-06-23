@@ -607,6 +607,18 @@ namespace gmsh { // Top-level functions
 
     namespace mesh { // Mesh functions
 
+      //   gmsh::model::mesh::setuv
+      GMSH_API void setuvw(const int dim, const int tag, const std::vector<double> & uvw);  
+      
+      //   gmsh::model::mesh::getuv
+      GMSH_API void getuvw(const int dim, const int tag, std::vector<double> & uvw);  
+      
+      //   gmsh::model::mesh::getxyz
+      GMSH_API void getxyz(const int dim, const int tag,  std::vector<double> & xyz);  
+      
+      //   gmsh::model::mesh::getNumNodes
+      GMSH_API void getNumNodes(const int dim, const int tag,  std::vector<std::size_t> & nodes);  
+
       // gmsh::model::mesh::generate
       //
       // Generate a mesh of the current model, up to dimension `dim' (0, 1, 2 or

@@ -1241,6 +1241,151 @@ GMSH_API void gmsh::model::setCoordinates(const int tag, const double x,
 
 // gmsh::model::mesh
 
+GMSH_API void gmsh::model::mesh::setuvw(const int dim, const int tag, const std::vector<double> & uvw)
+{
+  if(!_checkInit()) return;
+  GEntity *ge = GModel::current()->getEntityByTag(dim, tag);
+  if(!ge) {
+    Msg::Error("%s does not exist", _getEntityName(dim, tag).c_str());
+    return;
+  }
+  
+  switch(ge->dim()) {
+  case 0: {
+    break;
+  }
+  case 1: {
+    break;
+  }
+  case 2: {
+    GFace *f = static_cast<GFace *>(ge);
+    size_t n = f->stl_vertices_uv.size();
+    
+    for (size_t i =0; i <n;++i)
+    {
+        f->stl_vertices_uv[i].setPosition(uvw[2*i],uvw[2*i+1]);
+    }
+    break;
+  }
+  case 3: {
+      break;
+  }
+  }
+  return;
+}
+      
+      
+//   gmsh::model::mesh::setuv
+GMSH_API void gmsh::model::mesh::getuvw(const int dim, const int tag, std::vector<double> & uvw)
+{
+  if(!_checkInit()) return;
+  GEntity *ge = GModel::current()->getEntityByTag(dim, tag);
+  if(!ge) {
+    Msg::Error("%s does not exist", _getEntityName(dim, tag).c_str());
+    return;
+  }
+  
+  switch(ge->dim()) {
+  case 0: {
+    break;
+  }
+  case 1: {
+    break;
+  }
+  case 2: {
+    GFace *f = static_cast<GFace *>(ge);
+    size_t n = f->stl_vertices_uv.size();
+    uvw.reserve(n*dim);
+    for (size_t i =0; i <n;++i)
+    {
+        uvw.push_back(f->stl_vertices_uv[i].x());
+        uvw.push_back(f->stl_vertices_uv[i].y());
+    }
+    break;
+  }
+  case 3: {
+      break;
+  }
+    }
+    return;
+}
+
+//   gmsh::model::mesh::getxyz
+GMSH_API void gmsh::model::mesh::getxyz(const int dim, const int tag,  std::vector<double> & xyz)
+{
+  if(!_checkInit()) return;
+  GEntity *ge = GModel::current()->getEntityByTag(dim, tag);
+  if(!ge) {
+    Msg::Error("%s does not exist", _getEntityName(dim, tag).c_str());
+    return;
+  }
+  
+  switch(ge->dim()) {
+  case 0: {
+    //GVertex *v = static_cast<GVertex *>(ge);
+    break;
+  }
+  case 1: {
+    //GEdge *e = static_cast<GEdge *>(ge);
+    break;
+    }
+  case 2: {
+    GFace *f = static_cast<GFace *>(ge);
+    size_t n = f->stl_vertices_xyz.size();
+    xyz.reserve(n*3);
+    for (size_t i =0; i <n;++i)
+    {
+        xyz.push_back(f->stl_vertices_xyz[i].x());
+        xyz.push_back(f->stl_vertices_xyz[i].y());
+        xyz.push_back(f->stl_vertices_xyz[i].z());
+    }
+    break;
+    }
+  case 3: {
+   // GRegion *r = static_cast<GRegion *>(ge);
+      break;
+    }
+    }
+    return;
+}
+
+//   gmsh::model::mesh::getNumNodes
+GMSH_API void gmsh::model::mesh::getNumNodes(const int dim, const int tag,  std::vector<std::size_t> & nodes)
+{
+  if(!_checkInit()) return;
+  GEntity *ge = GModel::current()->getEntityByTag(dim, tag);
+  if(!ge) {
+    Msg::Error("%s does not exist", _getEntityName(dim, tag).c_str());
+    return;
+  }
+  
+  switch(ge->dim()) {
+  case 0: {
+    //GVertex *v = static_cast<GVertex *>(ge);
+    break;
+  }
+  case 1: {
+    //GEdge *e = static_cast<GEdge *>(ge);
+    break;
+    }
+  case 2: {
+    GFace *f = static_cast<GFace *>(ge);
+    size_t n = f->mesh_vertices.size();
+    nodes.reserve(n);
+    for (size_t i =0; i <n;++i)
+    {
+        nodes.push_back(f->mesh_vertices[i]->getNum());
+    }
+    break;
+    }
+  case 3: {
+   // GRegion *r = static_cast<GRegion *>(ge);
+      break;
+    }
+    }
+    return;
+}
+
 GMSH_API void gmsh::model::mesh::generate(const int dim)
 {
   if(!_checkInit()) return;

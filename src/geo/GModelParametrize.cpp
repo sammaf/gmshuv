@@ -504,7 +504,8 @@ bool computeParametrization(const std::vector<MTriangle *> &triangles,
   nodes.clear();
 
   if(triangles.empty()) return false;
-
+  
+  
   // get nodes and edges
   std::map<MVertex *, int> nodeIndex;
   std::map<MEdge, std::vector<MTriangle *>, MEdgeLessThan> edges;
@@ -701,6 +702,13 @@ bool computeParametrization(const std::vector<MTriangle *> &triangles,
     stl_triangles[3 * i + 1] = nodeIndex[triangles[i]->getVertex(1)];
     stl_triangles[3 * i + 2] = nodeIndex[triangles[i]->getVertex(2)];
   }
+//     Msg::Info("triangles %d ", triangles.size());
+//      for(std::size_t i = 0; i < triangles.size(); i++) 
+//      {
+//          Msg::Info("stl_triangles %d %d %d ", stl_triangles[3 * i + 0], stl_triangles[3 * i + 1], stl_triangles[3 * i + 2]);
+//      }
+//     Msg::Info("nodes %d ", nodes.size());
+//     Msg::Info("stl_vertices_uv %d ", stl_vertices_uv.size());
 
   return true;
 }
